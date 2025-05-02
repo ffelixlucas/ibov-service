@@ -11,5 +11,5 @@ app.config.from_object(Config)
 app.register_blueprint(market_bp)
 
 if __name__ == "__main__":
-    port = app.config["PORT"]
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)

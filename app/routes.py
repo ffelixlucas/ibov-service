@@ -63,6 +63,18 @@ def gerar_analise():
         if tendencia == "não disponível":
             tendencia = "sem tendência clara"
 
+        impulsoras = '\n'.join([
+            f'  → {a["ticker"]} ({a["setor"]}): {a["variacao"]} | Peso: {a.get("peso_ibov", 0)}% | Volume: {a["volume"]}'
+            for a in acoes
+            if '+' in a["variacao"] and float(a["variacao"].replace('%', '').replace(',', '.')) > 0.1
+        ]) or 'Nenhuma ação com variação positiva significativa'
+
+        penalizadoras = '\n'.join([
+            f'  → {a["ticker"]} ({a["setor"]}): {a["variacao"]} | Peso: {a.get("peso_ibov", 0)}% | Volume: {a["volume"]}'
+            for a in acoes
+            if '-' in a["variacao"] and float(a["variacao"].replace('%', '').replace(',', '.')) < -0.1
+        ]) or 'Nenhuma ação com variação negativa significativa'
+
         prompt = f"""
 Você é um analista técnico da Future Trade. Analise o mercado usando esta estrutura:
 
@@ -73,9 +85,9 @@ Você é um analista técnico da Future Trade. Analise o mercado usando esta est
 
 **Ações e Setores** (Peso IBOV em destaque)
 - Principais impulsoras (variação positiva significativa, >0.1%):
-{'\n'.join([f'  → {a["ticker"]} ({a["setor"]}): {a["variacao"]} | Peso: {a.get("peso_ibov", 0)}% | Volume: {a["volume"]}' for a in acoes if '+' in a["variacao"] and float(a["variacao"].replace('%', '').replace(',', '.')) > 0.1]) or 'Nenhuma ação com variação positiva significativa'}
+{impulsoras}
 - Principais penalizadoras (variação negativa, <-0.1%):
-{'\n'.join([f'  → {a["ticker"]} ({a["setor"]}): {a["variacao"]} | Peso: {a.get("peso_ibov", 0)}% | Volume: {a["volume"]}' for a in acoes if '-' in a["variacao"] and float(a["variacao"].replace('%', '').replace(',', '.')) < -0.1]) or 'Nenhuma ação com variação negativa significativa'}
+{penalizadoras}
 
 **Contexto Técnico**
 - Força do setor {setor_alta} vs fraqueza do setor {setor_baixa}.
