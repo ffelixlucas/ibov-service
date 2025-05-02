@@ -1,7 +1,11 @@
 import yfinance as yf
 from collections import defaultdict
 from locale import setlocale, format_string, LC_NUMERIC
-setlocale(LC_NUMERIC, 'pt_BR.UTF-8')
+import locale
+try:
+    locale.setlocale(locale.LC_NUMERIC, 'pt_BR.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_NUMERIC, 'C')  # fallback universal
 import numpy as np
 import logging
 logging.basicConfig(level=logging.INFO)
