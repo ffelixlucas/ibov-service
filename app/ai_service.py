@@ -19,6 +19,8 @@ if not api_key:
 client = OpenAI(
     base_url=base_url,
     api_key=api_key
+    print(f"🔐 API_KEY em uso: {api_key}")
+
 )
 
 def gerar_analise_openrouter(prompt):
