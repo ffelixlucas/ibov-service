@@ -1,12 +1,13 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+from app.config import Config
 
 # Carrega as variáveis de ambiente do .env
 load_dotenv()
 
-# Pega as variáveis do ambiente
-api_key = os.getenv("OPENROUTER_API_KEY")
+
+api_key = os.getenv("OPENROUTER_API_KEY") or Config.OPENAI_API_KEY
 base_url = os.getenv("OPENROUTER_BASE_URL")
 referer = os.getenv("OPENROUTER_REFERER", "http://localhost")
 
