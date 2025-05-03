@@ -6,7 +6,7 @@ from openai import OpenAI
 load_dotenv()
 
 # Pega as variáveis do ambiente
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENROUTER_API_KEY")
 base_url = os.getenv("OPENROUTER_BASE_URL")
 referer = os.getenv("OPENROUTER_REFERER", "http://localhost")
 
