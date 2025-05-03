@@ -7,7 +7,7 @@ from app.config import Config
 load_dotenv()
 
 
-api_key = os.getenv("OPENROUTER_API_KEY") or Config.OPENAI_API_KEY
+api_key = os.getenv("OPENROUTER_API_KEY")
 base_url = os.getenv("OPENROUTER_BASE_URL")
 referer = os.getenv("OPENROUTER_REFERER", "http://localhost")
 
