@@ -15,12 +15,13 @@ referer = os.getenv("OPENROUTER_REFERER", "http://localhost")
 if not api_key:
     raise ValueError("❌ OPENAI_API_KEY não foi encontrada. Verifique seu .env")
 
+print(f"🔐 API_KEY em uso: {api_key}")
+
 # Cria o client do OpenAI/OpenRouter
 client = OpenAI(
     base_url=base_url,
-    api_key=api_key
-    print(f"🔐 API_KEY em uso: {api_key}")
-
+    api_key=api_key,
+    
 )
 
 def gerar_analise_openrouter(prompt):
