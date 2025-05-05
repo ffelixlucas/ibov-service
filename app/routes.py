@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.service import buscar_variacao_ibov, obter_dados_win
-from app.ai_service import gerar_analise_openrouter
+from app.ai_service import gerar_analise_openai
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -108,7 +108,7 @@ Contexto adicional:
 - Não inclua recomendações de compra ou venda, apenas descreva o comportamento do mercado.
 """
 
-        analise = gerar_analise_openrouter(prompt.strip())
+        analise = gerar_analise_openai(prompt.strip())
         return jsonify({"analise": analise})
     except Exception as e:
         logger.error(f"Erro ao gerar análise: {str(e)}")

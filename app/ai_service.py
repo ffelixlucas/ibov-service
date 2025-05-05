@@ -7,9 +7,9 @@ from app.config import Config
 load_dotenv()
 
 
-api_key = os.getenv("OPENROUTER_API_KEY")
-base_url = os.getenv("OPENROUTER_BASE_URL")
-referer = os.getenv("OPENROUTER_REFERER", "http://localhost")
+api_key = os.getenv("OPENAI_API_KEY")
+base_url = os.getenv("BASE_URL")
+referer = os.getenv("REFERER", "http://localhost")
 
 # Verifica se a API Key está disponível
 if not api_key:
@@ -24,7 +24,7 @@ client = OpenAI(
     
 )
 
-def gerar_analise_openrouter(prompt):
+def gerar_analise_openai(prompt):
     try:
         completion = client.chat.completions.create(
             model="mistralai/mistral-7b-instruct",
