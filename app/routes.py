@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.service import buscar_variacao_ibov, obter_dados_win
+from app.service import buscar_variacao_ibov, obter_dados_win, buscar_indices_globais
 from app.ai_service import gerar_analise_openai
 import logging
 
@@ -7,6 +7,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 market_bp = Blueprint("market", __name__)
+
+@market_bp.route("/api/market/indices", methods=["GET"])
+def rota_indices():
+    try:
+        dados = buscar_indices_globais()
+        return jsonify(dados)
+    except Exception as e:
+        logger.error(f"Erro em /indices: {str(e)}")
+        return jsonify({"erro": "Falha ao buscar índices globais"}), 500
+
 
 @market_bp.route("/api/market/ibov", methods=["GET"])
 def rota_ibov():

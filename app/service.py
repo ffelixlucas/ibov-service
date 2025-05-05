@@ -219,3 +219,42 @@ def obter_dados_win(interval="5m"):
         }
     except Exception as e:
         return {"tendencia": "erro", "volume": "erro", "detalhes": str(e)}
+    
+def buscar_indices_globais():
+    tickers = {
+        "IBOVESPA": {"ticker": "^BVSP", "nome": "Ibovespa"},
+        "SP500": {"ticker": "^GSPC", "nome": "S&P 500"},
+        "DOLAR": {"ticker": "USDBRL=X", "nome": "Dólar Comercial"},
+        "NASDAQ": {"ticker": "^IXIC", "nome": "Nasdaq"},
+        "EURO": {"ticker": "EURBRL=X", "nome": "Euro"},
+        "NIKKEI": {"ticker": "^N225", "nome": "Nikkei 225"}
+    }
+
+    resultados = {}
+
+    for chave, dados_ticker in tickers.items():
+        simbolo = dados_ticker["ticker"]
+        nome_legivel = dados_ticker["nome"]
+
+        try:
+            dados = yf.Ticker(simbolo).history(period="1d", interval="1d")
+            if dados.empty:
+                resultados[chave] = {"erro": "Sem dados disponíveis"}
+                continue
+
+            preco_final = dados["Close"].iloc[-1]
+            preco_abertura = dados["Open"].iloc[0]
+            variacao = ((preco_final - preco_abertura) / preco_abertura) * 100
+
+            resultados[chave] = {
+                "nome": nome_legivel,
+                "ticker": simbolo,
+                "valor_atual": round(preco_final, 2),
+                "variacao": f"{variacao:+.2f}%"
+            }
+
+        except Exception as e:
+            resultados[chave] = {"erro": str(e)}
+
+    return resultados
+
