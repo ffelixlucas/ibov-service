@@ -1,39 +1,37 @@
 import os
+import httpx
 from dotenv import load_dotenv
-from openai import OpenAI
 from app.config import Config
 
-# Carrega as variáveis de ambiente do .env
 load_dotenv()
-
 
 api_key = os.getenv("OPENAI_API_KEY")
 base_url = os.getenv("BASE_URL")
 referer = os.getenv("REFERER", "http://localhost")
 
-# Verifica se a API Key está disponível
-if not api_key:
-    raise ValueError("❌ OPENAI_API_KEY não foi encontrada. Verifique seu .env")
 
-print(f"🔐 API_KEY em uso: {api_key}")
 
-# Cria o client do OpenAI/OpenRouter
-client = OpenAI(
-    base_url=base_url,
-    api_key=api_key,
-    
-)
 
 def gerar_analise_openai(prompt):
     try:
-        completion = client.chat.completions.create(
-            model="mistralai/mistral-7b-instruct",
-            messages=[{"role": "user", "content": prompt}],
-            extra_headers={
+        response = httpx.post(
+            f"{base_url}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
                 "HTTP-Referer": referer,
                 "X-Title": "RadarFinanceiroFutureTrade"
-            }
+            },
+            json={
+                "model": "mistralai/mistral-7b-instruct:free",  # ⬅️ importante manter o :free
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.7
+            },
+            timeout=30.0
         )
-        return completion.choices[0].message.content
+        if response.status_code != 200:
+            raise Exception(response.text)
+
+        return response.json()["choices"][0]["message"]["content"]
     except Exception as e:
-        return f"Erro na OpenRouter: {e}"
+        return f"⚠️ Erro na OpenRouter: {str(e)}"
