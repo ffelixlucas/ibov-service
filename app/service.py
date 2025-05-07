@@ -11,6 +11,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from datetime import datetime, timedelta
+CACHE_DADOS = {}
+CACHE_TTL = timedelta(minutes=3)
+
+
 def calcular_rsi(dados, periodos=14):
     try:
         delta = dados['Close'].diff()
@@ -46,19 +51,33 @@ def formatar_volume(numero):
 
 def buscar_variacao_ibov():
     ticker_ibov = "^BVSP"
-    dados_ibov = yf.Ticker(ticker_ibov)
-    info_ibov = dados_ibov.history(period="1d", interval="1d")  # Dados diários para IBOV
+    agora = datetime.now()
+
+    # Verifica se o índice IBOV está no cache
+    if ticker_ibov in CACHE_DADOS and agora - CACHE_DADOS[ticker_ibov]["timestamp"] < CACHE_TTL:
+        logger.info("Usando cache para IBOV")
+        dados_ibov = CACHE_DADOS[ticker_ibov]["ticker"]
+    else:
+        logger.info("Consultando yfinance para IBOV")
+        dados_ibov = yf.Ticker(ticker_ibov)
+        CACHE_DADOS[ticker_ibov] = {
+            "ticker": dados_ibov,
+            "timestamp": agora
+        }
+
+    try:
+        info_ibov = dados_ibov.history(period="1d", interval="1d")
+        logger.info(f"info_ibov retornado: {info_ibov}")
+    except Exception as e:
+        logger.error(f"Erro ao buscar histórico do IBOV: {str(e)}")
+        return {
+            "erro": "Falha ao consultar histórico do IBOV"
+        }
 
     if info_ibov.empty:
         logger.warning("Dados do IBOV não encontrados")
         return {
-            "indice": "IBOV",
-            "valor_atual": format_string('%.2f', ultimo_valor, grouping=True),
-            "variacao": f"{variacao:+.2f}%",
-            "volatilidade": volatilidade_formatada,
-            "acoes_maior_peso": acoes_maior_peso,
-            "setor_em_alta": setor_em_alta,
-            "setor_em_baixa": setor_em_baixa
+            "erro": "Falha ao buscar dados do IBOV"
         }
 
     ultimo_valor = info_ibov["Close"].iloc[-1]
@@ -78,10 +97,26 @@ def buscar_variacao_ibov():
     acoes_maior_peso = []
     for acao in acoes:
         try:
-            logger.info(f"Processando ação {acao['ticker']}")
-            ticker = yf.Ticker(acao["ticker"])
-            dados_5min = ticker.history(period="1d", interval="5m")
-            dados_historicos = ticker.history(period="5d", interval="1h")
+            ticker_symbol = acao["ticker"]
+            agora = datetime.now()
+
+            # Verifica se já temos cache e se ainda está válido
+            if ticker_symbol in CACHE_DADOS and agora - CACHE_DADOS[ticker_symbol]["timestamp"] < CACHE_TTL:
+                logger.info(f"Usando cache para {ticker_symbol}")
+                dados_5min = CACHE_DADOS[ticker_symbol]["dados_5min"]
+                dados_historicos = CACHE_DADOS[ticker_symbol]["dados_historicos"]
+            else:
+                logger.info(f"Consultando yfinance para {ticker_symbol}")
+                ticker = yf.Ticker(ticker_symbol)
+                dados_5min = ticker.history(period="1d", interval="5m")
+                dados_historicos = ticker.history(period="5d", interval="1h")
+
+                # Salva no cache
+                CACHE_DADOS[ticker_symbol] = {
+                    "dados_5min": dados_5min,
+                    "dados_historicos": dados_historicos,
+                    "timestamp": agora
+                }
 
             if dados_5min.empty:
                 logger.warning(f"Dados intradiários vazios para {acao['ticker']}")
@@ -91,7 +126,7 @@ def buscar_variacao_ibov():
                 logger.info(f"Dados intradiários disponíveis para {acao['ticker']}: {len(dados_5min)} pontos")
                 suporte = dados_5min['Low'].min()
                 resistencia = dados_5min['High'].max()
-                rsi = calcular_rsi(dados_5min, periodos=5) if len(dados_5min) >= 5 else 0  # Reduzido para 5
+                rsi = calcular_rsi(dados_5min, periodos=5) if len(dados_5min) >= 5 else 0
                 variacao_acao = ((dados_5min['Close'].iloc[-1] - dados_5min['Open'].iloc[0]) / dados_5min['Open'].iloc[0]) * 100
                 preco = f"R$ {dados_5min['Close'].iloc[-1]:.2f}".replace(".", ",")
 
@@ -130,6 +165,7 @@ def buscar_variacao_ibov():
                 "resistencia": "R$ 0,00",
                 "rsi": "0.0"
             })
+
 
     # Agrupa variações por setor
     setor_variacoes = defaultdict(list)
