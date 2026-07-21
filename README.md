@@ -4,7 +4,8 @@ Microserviço em Python com Flask para fornecer dados e análises automatizadas 
 
 ## Funcionalidades
 
-- `GET /api/ibov`: retorna dados do IBOV via Yahoo Finance
+- `GET /api/market/indices`: retorna índices globais usados no header do Radar
+- `GET /api/market/ibov`: retorna dados do IBOV via Yahoo Finance
 - `GET /api/market/win`: fornece dados do Mini Índice com intervalo configurável
 - `POST /api/market/analise`: gera análise estratégica com IA baseada em dados de mercado
 
@@ -39,7 +40,7 @@ python main.py
 
 ## Integração
 
-Este microserviço é integrado a um backend Node.js que atua como proxy entre o frontend da plataforma Future Trade e este serviço Python.
+Este microserviço é compatível com o frontend `radar-financeiro` e pode ser integrado a um backend Node.js que atue como proxy entre aplicações web e os dados de mercado.
 
 ## Status
 
