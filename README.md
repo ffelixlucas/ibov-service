@@ -1,30 +1,46 @@
-# 📈 ibov-service
+# ibov-service
 
 Microserviço em Python com Flask para fornecer dados e análises automatizadas do IBOVESPA e do Mini Índice (WIN$), com suporte a inteligência artificial via OpenRouter.
 
----
+## Funcionalidades
 
-## 🚀 Funcionalidades
+- `GET /api/ibov`: retorna dados do IBOV via Yahoo Finance
+- `GET /api/market/win`: fornece dados do Mini Índice com intervalo configurável
+- `POST /api/market/analise`: gera análise estratégica com IA baseada em dados de mercado
 
-- 🔎 **/api/ibov** – Retorna dados do IBOV (Yahoo Finance)
-- 📊 **/api/market/win** – Fornece dados do Mini Índice (WIN1!) com intervalo personalizável
-- 🧠 **/api/market/analise** – Gera uma análise estratégica com IA baseada em dados reais de mercado
+## Stack
 
----
+- Python
+- Flask
+- yfinance
+- pandas
+- OpenAI SDK/OpenRouter
+- python-dotenv
 
-## 🧱 Estrutura
+## Estrutura
 
+```text
+.
+├── app/              # Rotas e regra de negocio
+├── requirements.txt  # Dependencias Python
+└── README.md
 ```
-ibov-service/
-│
-├── main.py              # Inicializa o servidor Flask
-├── routes.py            # Define as rotas da API
-├── service.py           # Lógica de negócio (coleta de dados, análise etc)
-├── requirements.txt     # Dependências do projeto
-├── .env                 # Variáveis sensíveis (não subir no Git)
-└── .gitignore           # Ignora venv, .env e arquivos desnecessários
+
+## Como rodar localmente
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
 ```
 
-## 📁 Integração
+> Configure as variáveis de ambiente localmente. Não versionar `.env`, tokens ou chaves.
+
+## Integração
 
 Este microserviço é integrado a um backend Node.js que atua como proxy entre o frontend da plataforma Future Trade e este serviço Python.
+
+## Status
+
+Microserviço em evolução para consulta e análise automatizada de mercado.
